@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8f7fc;
+  --foreground: #14121a;
+  --card: #ffffff;
+  --card-foreground: #14121a;
+  --muted: #eeecf4;
+  --muted-foreground: #65607a;
+  --border: #e4e0ef;
+  --ring: #7c6ae8;
+  --accent: #5b4ddb;
+  --accent-secondary: #8b5cf6;
+  --accent-foreground: #ffffff;
+  --hero-glow: rgba(91, 77, 219, 0.12);
+  --hero-glow-2: rgba(139, 92, 246, 0.1);
+  --grid-color: rgba(20, 18, 26, 0.06);
+}
+
+.dark {
+  --background: #0c0a10;
+  --foreground: #f4f2fa;
+  --card: #15131c;
+  --card-foreground: #f4f2fa;
+  --muted: #1f1c28;
+  --muted-foreground: #a39bb8;
+  --border: #2a2638;
+  --ring: #9d8ff5;
+  --accent: #8b7cf5;
+  --accent-secondary: #a78bfa;
+  --accent-foreground: #0c0a10;
+  --hero-glow: rgba(139, 124, 245, 0.2);
+  --hero-glow-2: rgba(167, 139, 250, 0.12);
+  --grid-color: rgba(244, 242, 250, 0.05);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--accent) 35%, transparent);
+    color: var(--foreground);
+  }
+}
