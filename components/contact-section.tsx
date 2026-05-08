@@ -1,70 +1,127 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { ContactInfo, SocialLink } from "@/lib/types";
 import { SectionShell } from "./section-shell";
-import {
-  IconMail,
-  IconPhone,
-  IconSend2, // send button
-  IconBrandGithub,
-  IconBrandLinkedin,
-  IconBrandTwitter,
-} from "@tabler/icons-react";
+import { IconMail, IconPhone, IconSend2 } from "@tabler/icons-react";
+
 interface ContactSectionProps {
   contact: ContactInfo;
   socialLinks: SocialLink[];
 }
 
 const inputClass =
-  "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-sm transition-[border-color,box-shadow] placeholder:text-muted-foreground focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/25 dark:bg-card/80";
+  "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-sm transition-[border-color,box-shadow] placeholder:text-muted-foreground focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/25 dark:bg-card/80 disabled:opacity-50";
+
+type Status = "idle" | "loading" | "success" | "error";
 
 export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  useEffect(() => {
+    if (status === "success" || status === "error") {
+      const timer = setTimeout(() => {
+        setStatus("idle");
+        setErrorMsg("");
+      }, 4000); // hides after 4 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMsg("");
+
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      subject: (form.elements.namedItem("subject") as HTMLInputElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement)
+        .value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Something went wrong");
+      }
+
+      setStatus("success");
+      form.reset();
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMsg(err.message);
+    }
+  }
+
   return (
     <SectionShell id="contact" kicker="Say hello" title="Contact">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:items-start">
+      <div className="grid grid-cols-2 gap-5 items-center">
         {/* Form */}
-        {contact.contactFormEndpoint ? (
-          <form
-            action={contact.contactFormEndpoint}
-            method="POST"
-            className="grid gap-3.5">
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Your name"
-                className={inputClass}
-              />
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="Your email"
-                className={inputClass}
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="grid gap-3.5">
+          <div className="grid gap-3.5 sm:grid-cols-2">
             <input
               type="text"
-              name="subject"
-              placeholder="Subject"
-              className={inputClass}
-            />
-            <textarea
-              name="message"
+              name="name"
               required
-              placeholder="Your message…"
-              rows={5}
-              className={`${inputClass} min-h-[130px] resize-y`}
+              placeholder="Your name"
+              className={inputClass}
+              disabled={status === "loading"}
             />
-            <button
-              type="submit"
-              className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-7 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02] active:scale-[0.98]">
-              <IconSend2 className="size-4" />
-              Send message
-            </button>
-          </form>
-        ) : null}
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="Your email"
+              className={inputClass}
+              disabled={status === "loading"}
+            />
+          </div>
+          <input
+            type="text"
+            name="subject"
+            placeholder="Subject"
+            className={inputClass}
+            disabled={status === "loading"}
+          />
+          <textarea
+            name="message"
+            required
+            placeholder="Your message…"
+            rows={5}
+            className={`${inputClass} min-h-[130px] resize-none`}
+            disabled={status === "loading"}
+          />
 
-        {/* Sidebar */}
+          {/* Feedback messages */}
+          {status === "success" && (
+            <p className="rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">
+              ✓ Message sent! I&apos;ll get back to you soon.
+            </p>
+          )}
+          {status === "error" && (
+            <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400">
+              ✗ {errorMsg || "Something went wrong. Please try again."}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-7 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100">
+            <IconSend2 className="size-4" />
+            {status === "loading" ? "Sending…" : "Send message"}
+          </button>
+        </form>
+
+        {/* Sidebar — unchanged */}
         <aside className="flex flex-col gap-7 rounded-2xl border border-border bg-muted/30 p-6 dark:bg-muted/20">
           {(contact.email || contact.phone) && (
             <div>
