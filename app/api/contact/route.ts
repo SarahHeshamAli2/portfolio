@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           <p><strong>From:</strong> ${name} (${email})</p>
           <p><strong>Subject:</strong> ${subject || "—"}</p>
           <hr />
-          <p>${message.replace(/\n/g, "<br/>")}</p>
+          <p>${message.replace(/\n/g, "<br/> ")}</p>
         `,
       });
       if (resendError) {

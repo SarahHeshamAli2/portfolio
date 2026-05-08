@@ -63,9 +63,9 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
 
   return (
     <SectionShell id="contact" kicker="Say hello" title="Contact">
-      <div className="grid grid-cols-2 gap-5 items-center">
+      <div className="md:grid grid-cols-2 gap-5 items-center">
         {/* Form */}
-        <form onSubmit={handleSubmit} className="grid gap-3.5">
+        <form onSubmit={handleSubmit} className="grid gap-3.5 mb-3">
           <div className="grid gap-3.5 sm:grid-cols-2">
             <input
               type="text"
