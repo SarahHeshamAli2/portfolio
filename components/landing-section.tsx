@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import type { PersonalInfo } from "@/lib/types";
+import { Button } from "./ui/button";
 
 interface LandingSectionProps {
   personalInfo: PersonalInfo;
@@ -220,9 +221,9 @@ function DesktopIcon({
 type ScrollState = "idle" | "scrolling" | "paused";
 
 function StartButton() {
+  const [status, setStatus] = useState<ScrollState>("idle");
   const rafId = useRef<number | null>(null);
   const acc = useRef(0);
-  const scrollState = useRef<ScrollState>("idle");
   const SPEED = 0.6;
 
   const stopRaf = () => {
@@ -245,36 +246,70 @@ function StartButton() {
       rafId.current = requestAnimationFrame(tick);
     } else {
       rafId.current = null;
-      scrollState.current = "idle";
+      setStatus("idle");
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // don't jump to /#top
+  const startScrolling = () => {
+    setStatus("scrolling");
+    acc.current = 0;
+    rafId.current = requestAnimationFrame(tick);
+  };
 
-    if (scrollState.current === "idle") {
-      // Start scrolling
-      scrollState.current = "scrolling";
-      acc.current = 0;
-      rafId.current = requestAnimationFrame(tick);
+  const stopScrolling = () => {
+    stopRaf();
+    setStatus("idle");
+    acc.current = 0;
+  };
+
+  // Stop auto-scroll on manual user interaction
+  useEffect(() => {
+    const handleManualScroll = () => {
+      if (status !== "idle") {
+        stopScrolling();
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        ["ArrowUp", "ArrowDown", "Space", "PageUp", "PageDown", "Home", "End"].includes(
+          e.code
+        )
+      ) {
+        handleManualScroll();
+      }
+    };
+
+    window.addEventListener("wheel", handleManualScroll, { passive: true });
+    window.addEventListener("touchmove", handleManualScroll, { passive: true });
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("wheel", handleManualScroll);
+      window.removeEventListener("touchmove", handleManualScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [status]);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (status === "idle") {
+      startScrolling();
     } else {
-      // Was scrolling or paused — stop entirely
-      stopRaf();
-      scrollState.current = "idle";
-      acc.current = 0;
+      stopScrolling();
     }
   };
 
   const handleMouseEnter = () => {
-    if (scrollState.current === "scrolling") {
+    if (status === "scrolling") {
       stopRaf();
-      scrollState.current = "paused";
+      setStatus("paused");
     }
   };
 
   const handleMouseLeave = () => {
-    if (scrollState.current === "paused") {
-      scrollState.current = "scrolling";
+    if (status === "paused") {
+      setStatus("scrolling");
       rafId.current = requestAnimationFrame(tick);
     }
   };
@@ -287,15 +322,17 @@ function StartButton() {
       onMouseLeave={handleMouseLeave}
       className="group relative shrink-0 overflow-hidden rounded-[3px] bg-accent px-3 py-1 font-mono text-[13px] text-white hover:bg-accent-secondary transition-colors">
       <span className="flex items-center gap-1.5">
-        <span>▶ START</span>
-        <span
-          className="inline-block animate-bounce text-[9px] opacity-70"
-          aria-hidden>
-          ▼
-        </span>
+        <span>{status === "idle" ? "▶ START" : "⏸ PAUSE"}</span>
+        {status === "idle" && (
+          <span
+            className="inline-block animate-bounce text-[9px] opacity-70"
+            aria-hidden>
+            ▼
+          </span>
+        )}
       </span>
       <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-card border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-        scroll paused
+        {status === "paused" ? "scroll paused" : "auto-scroll"}
       </span>
     </Link>
   );
@@ -441,12 +478,14 @@ export function LandingSection({ personalInfo }: LandingSectionProps) {
         <div className="h-6 w-px bg-border" />
         <div className="flex flex-1 gap-1.5 overflow-hidden">
           {nav.map((item) => (
-            <a
+            <Button
+              as="a"
               key={item.href}
               href={item.href}
-              className="shrink-0 rounded-xs border border-border bg-muted px-2.5 py-1 font-mono text-[10px] text-muted-foreground hover:border-accent/40 hover:text-accent-secondary">
+              variant="secondary"
+              className="shrink-0 h-7 rounded-xs border border-border bg-muted px-2.5 py-1 font-mono text-[10px] text-muted-foreground hover:border-accent/40 hover:text-accent-secondary">
               {item.label.toLowerCase()}.exe
-            </a>
+            </Button>
           ))}
         </div>
         {/* <Clock /> */}

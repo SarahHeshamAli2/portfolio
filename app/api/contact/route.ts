@@ -33,10 +33,11 @@ export async function POST(req: Request) {
         message,
         submittedAt: new Date().toISOString(),
       });
-    } catch (sanityErr: any) {
-      console.error("SANITY ERROR:", sanityErr?.message);
+    } catch (sanityErr) {
+      const msg = sanityErr instanceof Error ? sanityErr.message : "Unknown error";
+      console.error("SANITY ERROR:", msg);
       return NextResponse.json(
-        { error: "Sanity failed: " + sanityErr?.message },
+        { error: "Sanity failed: " + msg },
         { status: 500 },
       );
     }
@@ -61,19 +62,21 @@ export async function POST(req: Request) {
           { status: 500 },
         );
       }
-    } catch (resendErr: any) {
-      console.error("RESEND EXCEPTION:", resendErr?.message);
+    } catch (resendErr) {
+      const msg = resendErr instanceof Error ? resendErr.message : "Unknown error";
+      console.error("RESEND EXCEPTION:", msg);
       return NextResponse.json(
-        { error: "Resend exception: " + resendErr?.message },
+        { error: "Resend exception: " + msg },
         { status: 500 },
       );
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("UNHANDLED ERROR:", err?.message, err?.stack);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    console.error("UNHANDLED ERROR:", msg);
     return NextResponse.json(
-      { error: err?.message || "Unknown error" },
+      { error: msg },
       { status: 500 },
     );
   }

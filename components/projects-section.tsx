@@ -5,6 +5,8 @@ import Image from "next/image";
 import { IconExternalLink, IconBrandGithub } from "@tabler/icons-react";
 import type { Project } from "@/lib/types";
 import { SectionShell } from "./section-shell";
+import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
 
 interface ProjectsSectionProps {
   projects: Project[];
@@ -25,8 +27,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     <SectionShell id="projects" kicker="Selected work" title="Projects">
       <div className="grid gap-5 lg:grid-cols-2">
         {projects.map((project, index) => (
-          <motion.article
+          <Card
             key={project._id}
+            as={motion.div}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
@@ -36,7 +39,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               ease: [0.22, 1, 0.36, 1],
             }}
             whileHover={{ y: -5 }}
-            className="group relative overflow-hidden rounded-[1.125rem] border border-border bg-card transition-[border-color,box-shadow] hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/10">
+            className="group relative overflow-hidden transition-[border-color,box-shadow] hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/10">
             {/* Cover image */}
             <div className="relative overflow-hidden border-b border-border bg-muted/40 dark:bg-muted/20">
               {project.featured && (
@@ -65,31 +68,37 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             </div>
 
             {/* Body */}
-            <div className="flex flex-col gap-3 p-5">
+            <CardContent className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-[17px] font-semibold tracking-tight text-foreground">
                   {project.title}
                 </h3>
                 <div className="flex shrink-0 gap-1.5">
                   {project.projectUrl && (
-                    <a
+                    <Button
+                      as="a"
                       href={project.projectUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/8 px-2.5 py-1 font-mono text-[11.5px] font-semibold text-accent transition-colors hover:bg-accent/15">
+                      variant="outline"
+                      size="sm"
+                      className="h-7 border-accent/30 bg-accent/8 font-semibold text-accent hover:bg-accent/15">
                       <IconExternalLink size={11} />
                       Live
-                    </a>
+                    </Button>
                   )}
                   {project.repoUrl && (
-                    <a
+                    <Button
+                      as="a"
                       href={project.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 font-mono text-[11.5px] font-medium text-muted-foreground transition-colors hover:border-accent/30 hover:text-accent">
+                      variant="outline"
+                      size="sm"
+                      className="h-7">
                       <IconBrandGithub size={11} />
                       Code
-                    </a>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -102,13 +111,13 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 {project.techStack?.map((tech) => (
                   <span
                     key={`${project._id}-${tech}`}
-                    className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-medium text-muted-foreground transition-colors group-hover:border-accent/20 dark:bg-muted/25">
+                    className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-medium  transition-colors group-hover:border-accent/20 dark:bg-accent/40">
                     {tech}
                   </span>
                 ))}
               </div>
-            </div>
-          </motion.article>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </SectionShell>

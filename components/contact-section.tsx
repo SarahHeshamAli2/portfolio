@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import type { ContactInfo, SocialLink } from "@/lib/types";
 import { SectionShell } from "./section-shell";
 import { IconMail, IconPhone, IconSend2 } from "@tabler/icons-react";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+
 
 interface ContactSectionProps {
   contact: ContactInfo;
   socialLinks: SocialLink[];
 }
 
-const inputClass =
-  "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-sm transition-[border-color,box-shadow] placeholder:text-muted-foreground focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/25 dark:bg-card/80 disabled:opacity-50";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -55,9 +57,9 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
 
       setStatus("success");
       form.reset();
-    } catch (err: any) {
+    } catch (err) {
       setStatus("error");
-      setErrorMsg(err.message);
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
@@ -67,36 +69,33 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="grid gap-3.5 mb-3">
           <div className="grid gap-3.5 sm:grid-cols-2">
-            <input
+            <Input
               type="text"
               name="name"
               required
               placeholder="Your name"
-              className={inputClass}
               disabled={status === "loading"}
             />
-            <input
+            <Input
               type="email"
               name="email"
               required
               placeholder="Your email"
-              className={inputClass}
               disabled={status === "loading"}
             />
           </div>
-          <input
+          <Input
             type="text"
             name="subject"
             placeholder="Subject"
-            className={inputClass}
             disabled={status === "loading"}
           />
-          <textarea
+          <Textarea
             name="message"
             required
             placeholder="Your message…"
             rows={5}
-            className={`${inputClass} min-h-[130px] resize-none`}
+            className="min-h-[130px] resize-none"
             disabled={status === "loading"}
           />
 
@@ -112,13 +111,14 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
             </p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={status === "loading"}
-            className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-7 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100">
+            variant="gradient"
+            className="w-fit rounded-full px-7 py-6">
             <IconSend2 className="size-4" />
             {status === "loading" ? "Sending…" : "Send message"}
-          </button>
+          </Button>
         </form>
 
         {/* Sidebar — unchanged */}
