@@ -8,12 +8,10 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 
-
 interface ContactSectionProps {
   contact: ContactInfo;
   socialLinks: SocialLink[];
 }
-
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -138,7 +136,7 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
                   {contact.email}
                 </a>
               )}
-              {contact.phone && (
+              {/* {contact.phone && (
                 <a
                   href={`tel:${contact.phone.replace(/\s+/g, "")}`}
                   className="group flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-[13.5px] font-medium text-foreground transition-colors hover:border-accent/25 hover:bg-accent/5 hover:text-accent">
@@ -147,7 +145,7 @@ export function ContactSection({ contact, socialLinks }: ContactSectionProps) {
                   </span>
                   {contact.phone}
                 </a>
-              )}
+              )} */}
             </div>
           )}
 
